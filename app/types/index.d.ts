@@ -59,7 +59,7 @@ declare type Account = {
   type: string;
   subtype: string;
   appwriteItemId: string;
-  sharableId: string;
+  shareableId: string;
 };
 
 declare type Transaction = {
@@ -88,7 +88,7 @@ declare type Bank = {
   accessToken: string;
   fundingSourceUrl: string;
   userId: string;
-  sharableId: string;
+  shareableId: string;
 };
 
 declare type AccountTypes =
@@ -222,11 +222,9 @@ declare interface SiderbarProps {
   user: User;
 }
 
-declare interface RecentTransactionsProps {
+declare interface AccountsProps {
   accounts: Account[];
-  transactions: Transaction[];
   appwriteItemId: string;
-  page: number;
 }
 
 declare interface TransactionHistoryTableProps {
@@ -252,6 +250,8 @@ declare interface DoughnutChartProps {
 
 declare interface PaymentTransferFormProps {
   accounts: Account[];
+  errorMessage?: string;
+  errors?: Record<string, string>;
 }
 
 // Actions
@@ -260,7 +260,9 @@ declare interface getAccountsProps {
 }
 
 declare interface getAccountProps {
-  appwriteItemId: string;
+  appwriteItemId?: string;
+  userId: string;
+  transactionsItemLimit?: number;
 }
 
 declare interface getInstitutionProps {
@@ -269,6 +271,7 @@ declare interface getInstitutionProps {
 
 declare interface getTransactionsProps {
   accessToken: string;
+  limit?: number;
 }
 
 declare interface CreateFundingSourceOptions {
@@ -312,7 +315,7 @@ declare interface createBankAccountProps {
   accountId: string;
   bankId: string;
   fundingSourceUrl: string;
-  sharableId: string;
+  shareableId: string;
 }
 
 declare interface getBanksProps {

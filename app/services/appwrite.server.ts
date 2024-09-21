@@ -5,6 +5,11 @@ export interface UserSession {
     secret: string;
 }
 
+export const DATABASE_ID = process.env.APPWRITE_DATABASE_ID;
+export const USER_COLLECTION_ID = process.env.APPWRITE_USERS_COLLECTION_ID;
+export const BANK_COLLECTION_ID = process.env.APPWRITE_BANKS_COLLECTION_ID;
+export const TRANSACTION_COLLECTION_ID = process.env.APPWRITE_TRANSACTIONS_COLLECTION_ID;
+
 export async function createSessionClient(session: UserSession) {
     if (!process.env.APPWRITE_PUBLIC_ENDPOINT || !process.env.APPWRITE_PUBLIC_PROJECT) {
         throw new Error("Missing required environment variables.");

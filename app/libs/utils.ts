@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import qs from "query-string";
+import { string, type ZodError } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -192,3 +193,20 @@ export const getTransactionStatus = (date: Date) => {
 
   return date > twoDaysAgo ? "Processing" : "Success";
 };
+
+export const capitalize = (str: string) => {
+  return str.charAt(0).toLocaleUpperCase() + str.slice(1);
+};
+
+export const zodErrors = (error: ZodError) => {
+  const errors: Record<string, string> = {};
+
+  error.issues.forEach((issue) => {
+    if (issue.path.length > 0) {
+      const path = issue.path.join("");
+      errors[path] = issue.message;
+    }
+  });
+
+  return errors;
+}

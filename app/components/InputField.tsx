@@ -3,9 +3,10 @@ import type { InputHTMLAttributes } from "react";
 
 type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
     label: string;
+    error?: string;
 }
 
-export default function InputField({ label, type = "text", name, required = false, className = "", ...props }: InputFieldProps) {
+export default function InputField({ label, type = "text", name, required = false, error, className = "", ...props }: InputFieldProps) {
     return (
         <div className="form-item">
             <label className="flex flex-col">
@@ -17,6 +18,9 @@ export default function InputField({ label, type = "text", name, required = fals
                     required={required}
                     {...props}
                 />
+                {
+                    error && (<em className="text-red-600">{error}</em>)
+                }
             </label>
         </div>
     );

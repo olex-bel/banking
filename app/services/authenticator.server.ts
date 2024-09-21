@@ -2,45 +2,44 @@ import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import { createAdminClient } from "./appwrite.server";
 import { sessionStorage } from "./session.server";
-import { ID } from "node-appwrite";
+import { AppwriteException } from "node-appwrite";
 import type { UserSession } from "./appwrite.server";
 
 export const EMAIL_PASSWORD_STRATEGY = "email-password-strategy";
 export const authenticator = new Authenticator<UserSession>(sessionStorage);
 
 authenticator.use(
-    new FormStrategy(async ({ context }) => {
-        if (!context?.formData) {
+    new FormStrategy(async ({ form }) => {
+        if (!form) {
             throw new Error("FormData must be provided in the Context");
         }
 
-        const formData = context.formData as FormData;
+        const formData = form;
 
-        const email = formData.get("email") as string;
-        const password = formData.get("password") as string;
-        const { account } = await createAdminClient();
-        const session = await account.createEmailPasswordSession(email, password);
+        try {
+            const email = formData.get("email") as string;
+            const password = formData.get("password") as string;
+            const { account } = await createAdminClient();
+            const session = await account.createEmailPasswordSession(email, password);
+            return { secret: session.secret };
+        } catch (error) {
+            let errorMessage = "An error occurred. Please try again later.";
 
-        return { secret: session.secret };
+            console.error("Cannot sign in:", error);
+
+            if (error instanceof AppwriteException) {
+                switch (error.type) {
+                    case "user_blocked":
+                        errorMessage = "Your account has been blocked. Please contact support.";
+                        break;
+                    case "user_invalid_credentials":
+                        errorMessage = "Invalid credentials. Please check your email and password.";
+                        break;
+                }
+            }
+
+            throw Error(errorMessage);
+        }
     }),
     EMAIL_PASSWORD_STRATEGY
 );
-
-export async function signUpWithEmail(request: Request): Promise<UserSession | null> {
-    const formData = await request.formData();
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const firstName = formData.get("firstName") as string;
-    const lastName = formData.get("lastName") as string;
-
-    const { account } = await createAdminClient();
-    await account.create(ID.unique(), email, password, `${firstName} ${lastName}`);
-
-    const session = await account.createEmailPasswordSession(email, password);
-
-    if (!session) {
-        return null;
-    }
-
-    return { secret: session.secret };
-}
